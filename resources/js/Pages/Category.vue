@@ -1,10 +1,8 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, useForm, Link, router } from "@inertiajs/vue3";
+import { Head, useForm, Link, router, usePage } from "@inertiajs/vue3";
 import { ref, computed } from "vue";
 import { Bar } from "vue-chartjs";
-
-// Consider moveing it to separate component
 import {
     Chart as ChartJS,
     Title,
@@ -100,10 +98,16 @@ const chartOptions = ref({
     },
 });
 
-// Define the form
 const form = useForm({
     name: "",
 });
+
+// No jakby było wiecej query paramsów to by się mogło psuć, a tak to będzie git
+const page = usePage();
+const query = ref(page.url.split("=")[1]);
+const currentFilter = computed(() => query.value || "all");
+
+const isActiveFilter = (filter) => currentFilter.value === filter;
 </script>
 
 <template>
@@ -180,6 +184,52 @@ const form = useForm({
             <h3 class="text-xl font-semibold text-gray-800">
                 Statystyki kategorii:
             </h3>
+
+            <div class="flex space-x-4 my-4">
+                <Link
+                    :href="route('category.index', { maxCreatedDate: 'today' })"
+                    :class="[
+                        'px-4 py-2 rounded',
+                        isActiveFilter('today')
+                            ? 'bg-green-500 text-white'
+                            : 'bg-blue-500 text-white hover:bg-blue-700',
+                    ]"
+                    >Dziś</Link
+                >
+                <Link
+                    :href="route('category.index', { maxCreatedDate: '7days' })"
+                    :class="[
+                        'px-4 py-2 rounded',
+                        isActiveFilter('7days')
+                            ? 'bg-green-500 text-white'
+                            : 'bg-blue-500 text-white hover:bg-blue-700',
+                    ]"
+                    >7 dni</Link
+                >
+                <Link
+                    :href="
+                        route('category.index', { maxCreatedDate: '30days' })
+                    "
+                    :class="[
+                        'px-4 py-2 rounded',
+                        isActiveFilter('30days')
+                            ? 'bg-green-500 text-white'
+                            : 'bg-blue-500 text-white hover:bg-blue-700',
+                    ]"
+                    >30 dni</Link
+                >
+                <Link
+                    :href="route('category.index')"
+                    :class="[
+                        'px-4 py-2 rounded',
+                        isActiveFilter('all')
+                            ? 'bg-green-500 text-white'
+                            : 'bg-blue-500 text-white hover:bg-blue-700',
+                    ]"
+                    >Wszystkie</Link
+                >
+            </div>
+
             <div
                 class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl mt-4 px-4"
             >
@@ -194,6 +244,7 @@ const form = useForm({
                     <p class="mt-2 text-gray-600">
                         Ilość aktywności: {{ category.activities_count }}
                     </p>
+
                     <p class="text-gray-600">
                         Średni czas trwania:
                         <span v-if="category.activities_avg_spent_time">
@@ -206,10 +257,11 @@ const form = useForm({
         </div>
         <div
             v-else
-            class="flex items-center justify-center py-12 bg-red-100 text-red-700 rounded-lg border border-red-400"
+            class="flex items-center justify-center py-12 bg-green-400 text-white-700 rounded-lg border border-black-900 text-2xl font-bold"
         >
             Brak danych
         </div>
+
         <div
             class="max-w-4xl rounded px-8 py-8 mx-auto bg-white"
             v-if="categories.length"

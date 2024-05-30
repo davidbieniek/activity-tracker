@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Activity extends Model
 {
-    protected $fillable = ['name', 'user_id', 'category_id', 'spent_time'];
+    protected $fillable = ['name', 'user_id', 'category_id', 'spent_time', 'created_date'];
     use HasFactory;
 
     public function category(){

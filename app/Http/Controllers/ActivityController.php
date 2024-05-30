@@ -14,9 +14,12 @@ class ActivityController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
         ]);
+
+
         $validatedData['user_id'] = Auth::id();
         $validatedData['category_id'] = $category->id;
         $validatedData['spent_time'] = $request->spent_time;
+        $validatedData['created_date'] = $request->created_date;
 
         Activity::create($validatedData);
 

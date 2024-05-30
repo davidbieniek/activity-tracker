@@ -5,39 +5,67 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Category;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
-public function index()
-{
-    $categories = Auth::user()
+
+    public function index(Request $request)
+    {
+        $maxCreatedDate = $request->maxCreatedDate; // zakładam na sztywno że wartości 'today', '7days', '30days'
+        $dateThreshold = null;
+
+        switch ($maxCreatedDate) {
+            case 'today':
+                $dateThreshold = Carbon::today();
+                break;
+            case '7days':
+                $dateThreshold = Carbon::now()->subDays(7);
+                break;
+            case '30days':
+                $dateThreshold = Carbon::now()->subDays(30);
+                break;
+            default:
+                $dateThreshold = null;
+                break;
+        }
+
+        // Dla aktywności jak i zwracanej ilości aktywności uwzględniaj filtry
+        $categories = Auth::user()
             ->categories()
-            ->with('activities')
-            ->withCount('activities')
+            ->with(['activities' => function ($query) use ($dateThreshold) {
+                if ($dateThreshold) {
+                    $query->where('created_date', '>=', $dateThreshold);
+                }
+            }])
+            ->withCount(['activities' => function ($query) use ($dateThreshold) {
+                if ($dateThreshold) {
+                    $query->where('created_date', '>=', $dateThreshold);
+                }
+            }])
             ->get();
 
-    // Manually calculate the average spent time
-    foreach ($categories as $category) {
-        $totalSeconds = 0;
-        $activityCount = $category->activities_count;
+        $categories->each(function ($category) {
+            $totalSeconds = $category->activities->reduce(function ($carry, $activity) {
+                $timeParts = explode(':', $activity->spent_time);
+                $seconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + (isset($timeParts[2]) ? $timeParts[2] : 0);
+                return $carry + $seconds;
+            }, 0);
 
-        foreach ($category->activities as $activity) {
-            $timeParts = explode(':', $activity->spent_time);
-            $seconds = ($timeParts[0] * 3600) + ($timeParts[1] * 60) + $timeParts[2];
-            $totalSeconds += $seconds;
-        }
+            $activityCount = $category->activities->count();
 
-        if ($activityCount > 0) {
-            $averageSeconds = $totalSeconds / $activityCount;
-            $category['activities_avg_spent_time'] = gmdate('H:i:s', $averageSeconds);
-        } else {
-            $category['activities_avg_spent_time'] = null;
-        }
+            if ($activityCount > 0) {
+                $averageSeconds = $totalSeconds / $activityCount;
+                $category->activities_avg_spent_time = gmdate('H:i:s', $averageSeconds);
+            } else {
+                $category->activities_avg_spent_time = null;
+            }
+        });
+
+        return Inertia::render('Category', ['categories' => $categories]);
     }
 
-    return Inertia::render('Category', compact('categories'));
-}
 
     public function store(Request $request){
         $newCategory = new Category;
@@ -52,8 +80,31 @@ public function index()
         }
     }
 
-    public function show(Category $category){
-        $category->load('activities');
+    public function show(Category $category, Request $request){
+
+        $maxCreatedDate = $request->maxCreatedDate; // zakładam na sztywno że wartości 'today', '7days', '30days'
+        $dateThreshold = null;
+
+        switch ($maxCreatedDate) {
+            case 'today':
+                $dateThreshold = Carbon::today();
+                break;
+            case '7days':
+                $dateThreshold = Carbon::now()->subDays(7);
+                break;
+            case '30days':
+                $dateThreshold = Carbon::now()->subDays(30);
+                break;
+            default:
+                $dateThreshold = null;
+                break;
+        }
+
+        $category->load(['activities' => function ($query) use ($dateThreshold) {
+                if ($dateThreshold) {
+                    $query->where('created_date', '>=', $dateThreshold);
+                }
+            }]);
         return Inertia::render('Activity', compact('category'));
     }
 

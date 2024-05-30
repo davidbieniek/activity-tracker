@@ -1,12 +1,21 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, useForm, router } from "@inertiajs/vue3";
+import { Head, useForm, router, usePage, Link } from "@inertiajs/vue3";
+import { ref, computed } from "vue";
 
 const props = defineProps({
     category: Object,
 });
 
-const form = useForm({ name: "", spent_time: "" });
+const maxDate = () => {
+    return new Date().toISOString().slice(0, 10);
+};
+
+const form = useForm({
+    name: "",
+    spent_time: "",
+    created_date: maxDate(),
+});
 
 const addActivity = () => {
     form.post(route("activity.store", { category: props.category }), {
@@ -17,6 +26,13 @@ const addActivity = () => {
 const deleteActivity = (activity) => {
     router.delete(route("activity.destroy", { activity }));
 };
+
+// No jakby było wiecej query paramsów to by się mogło psuć, a tak to będzie git
+const page = usePage();
+const query = ref(page.url.split("=")[1]);
+const currentFilter = computed(() => query.value || "all");
+
+const isActiveFilter = (filter) => currentFilter.value === filter;
 </script>
 
 <template>
@@ -68,6 +84,23 @@ const deleteActivity = (activity) => {
                             />
                         </div>
 
+                        <div class="mb-4">
+                            <label
+                                for="created_date"
+                                class="block text-sm font-medium text-gray-700"
+                            >
+                                Data dodania
+                            </label>
+                            <input
+                                v-model="form.created_date"
+                                type="date"
+                                id="created_date"
+                                :max="maxDate()"
+                                required
+                                class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-400 focus:border-blue-400"
+                            />
+                        </div>
+
                         <div>
                             <button
                                 type="submit"
@@ -77,6 +110,67 @@ const deleteActivity = (activity) => {
                             </button>
                         </div>
                     </form>
+                </div>
+
+                <div
+                    class="flex items-center justify-center space-x-4 my-4"
+                    v-if="category.activities.length"
+                >
+                    <Link
+                        :href="
+                            route('category.show', {
+                                category,
+                                maxCreatedDate: 'today',
+                            })
+                        "
+                        :class="[
+                            'px-4 py-2 rounded',
+                            isActiveFilter('today')
+                                ? 'bg-green-500 text-white'
+                                : 'bg-blue-500 text-white hover:bg-blue-700',
+                        ]"
+                        >Dziś</Link
+                    >
+                    <Link
+                        :href="
+                            route('category.show', {
+                                category,
+                                maxCreatedDate: '7days',
+                            })
+                        "
+                        :class="[
+                            'px-4 py-2 rounded',
+                            isActiveFilter('7days')
+                                ? 'bg-green-500 text-white'
+                                : 'bg-blue-500 text-white hover:bg-blue-700',
+                        ]"
+                        >7 dni</Link
+                    >
+                    <Link
+                        :href="
+                            route('category.show', {
+                                category,
+                                maxCreatedDate: '30days',
+                            })
+                        "
+                        :class="[
+                            'px-4 py-2 rounded',
+                            isActiveFilter('30days')
+                                ? 'bg-green-500 text-white'
+                                : 'bg-blue-500 text-white hover:bg-blue-700',
+                        ]"
+                        >30 dni</Link
+                    >
+                    <Link
+                        :href="route('category.show', { category })"
+                        :class="[
+                            'px-4 py-2 rounded',
+                            isActiveFilter('all')
+                                ? 'bg-green-500 text-white'
+                                : 'bg-blue-500 text-white hover:bg-blue-700',
+                        ]"
+                        >Wszystkie</Link
+                    >
                 </div>
 
                 <!-- Activity Tiles -->
@@ -99,6 +193,14 @@ const deleteActivity = (activity) => {
                         </h3>
                         <p class="text-sm text-gray-600">
                             Czas trwania: {{ activity.spent_time }}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            Dodane dnia:
+                            {{
+                                new Date(
+                                    activity.created_date
+                                ).toLocaleDateString("pl-PL")
+                            }}
                         </p>
                     </div>
                 </div>
