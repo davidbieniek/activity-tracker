@@ -49,10 +49,27 @@ defineProps({
             <h1 class="text-4xl font-bold text-blue-600 mb-4">
                 Activity Tracker
             </h1>
-            <p class="text-lg text-gray-700">
+            <h2 class="text-2xl font-bold text-blue-500 mb-4">
+                Projektowanie wielowarstwowych aplikacji biznesowych
+            </h2>
+            <h3 class="text-lg text-gray-700">
                 Aplikacja dzięki której możesz śledzić swoje codzienne
                 aktywności
-            </p>
+            </h3>
         </main>
+        <footer class="footer text-center">
+    <p class="text-lg text-gray-700">
+        Dawid Bieniek, Wiktor Jawor
+    </p>
+</footer>
     </div>
 </template>
+
+<style>
+    .footer {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+</style>

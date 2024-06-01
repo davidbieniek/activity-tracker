@@ -22,7 +22,7 @@ const showingNavigationDropdown = ref(false);
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('category.index')">
                                     <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
+                                        class="block h-16 w-auto fill-current text-gray-800"
                                     />
                                 </Link>
                             </div>
@@ -73,14 +73,14 @@ const showingNavigationDropdown = ref(false);
                                         <DropdownLink
                                             :href="route('profile.edit')"
                                         >
-                                            Profile
+                                            Profil
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            Wyloguj
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
@@ -160,14 +160,14 @@ const showingNavigationDropdown = ref(false);
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
+                                Profil
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('logout')"
                                 method="post"
                                 as="button"
                             >
-                                Log Out
+                                Wyloguj
                             </ResponsiveNavLink>
                         </div>
                     </div>
