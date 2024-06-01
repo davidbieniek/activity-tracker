@@ -12,7 +12,7 @@ defineProps({
 </script>
 
 <template>
-    <Head title="Welcome" />
+    <Head title="Activity Tracker" />
     <div class="w-full h-screen">
         <header class="bg-gray-50 text-black flex justify-end w-full p-4">
             <nav v-if="canLogin" class="-mx-3 flex flex-1 justify-end">

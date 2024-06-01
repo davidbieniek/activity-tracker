@@ -111,7 +111,7 @@ const isActiveFilter = (filter) => currentFilter.value === filter;
 </script>
 
 <template>
-    <Head title="Category" />
+    <Head title="Kategorie" />
 
     <AuthenticatedLayout>
         <template #header>

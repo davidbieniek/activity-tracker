@@ -112,10 +112,7 @@ const isActiveFilter = (filter) => currentFilter.value === filter;
                     </form>
                 </div>
 
-                <div
-                    class="flex items-center justify-center space-x-4 my-4"
-                    v-if="category.activities.length"
-                >
+                <div class="flex items-center justify-center space-x-4 my-4">
                     <Link
                         :href="
                             route('category.show', {
@@ -173,41 +170,46 @@ const isActiveFilter = (filter) => currentFilter.value === filter;
                     >
                 </div>
 
-                <!-- Activity Tiles -->
                 <div
                     class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
-                    <div
-                        v-for="activity in category.activities"
-                        :key="activity.id"
-                        class="relative bg-white shadow sm:rounded-lg p-4"
-                    >
-                        <button
-                            @click="deleteActivity(activity)"
-                            class="absolute bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+                    <template v-if="category.activities.length > 0">
+                        <div
+                            v-for="activity in category.activities"
+                            :key="activity.id"
+                            class="relative bg-white shadow sm:rounded-lg p-4"
                         >
-                            X
-                        </button>
-                        <h3 class="text-lg font-semibold text-gray-800">
-                            {{ activity.name }}
-                        </h3>
-                        <p class="text-sm text-gray-600">
-                            Czas trwania: {{ activity.spent_time }}
-                        </p>
-                        <p class="text-sm text-gray-600">
-                            Dodane dnia:
-                            {{
-                                new Date(
-                                    activity.created_date
-                                ).toLocaleDateString("pl-PL")
-                            }}
-                        </p>
-                    </div>
+                            <button
+                                @click="deleteActivity(activity)"
+                                class="absolute bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+                            >
+                                X
+                            </button>
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                {{ activity.name }}
+                            </h3>
+                            <p class="text-sm text-gray-600">
+                                Czas trwania: {{ activity.spent_time }}
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                Dodane dnia:
+                                {{
+                                    new Date(
+                                        activity.created_date
+                                    ).toLocaleDateString("pl-PL")
+                                }}
+                            </p>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <p class="text-lg text-gray-600">Brak aktywności</p>
+                    </template>
                 </div>
             </div>
         </div>
     </AuthenticatedLayout>
 </template>
+
 <style>
 .absolute {
     right: 10px !important;
